@@ -117,7 +117,24 @@
         .swatch-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1.4rem;
         }
-        .swatch-card.showcase { cursor: default; }
+        .swatch-card.showcase { cursor: zoom-in; }
+
+        /* ===== LIGHTBOX ===== */
+        .lightbox { position: fixed; inset: 0; z-index: 1000; display: none;
+            align-items: center; justify-content: center; background: rgba(20,16,12,0.92);
+            padding: 5vh 5vw; opacity: 0; transition: opacity 0.2s ease; }
+        .lightbox.open { display: flex; opacity: 1; }
+        .lightbox-inner { text-align: center; max-width: 90vw; max-height: 90vh; }
+        .lightbox img { max-width: 100%; max-height: 78vh; object-fit: contain;
+            border: 1px solid var(--color-gold); box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+        .lightbox .lb-name { font-family: 'Playfair Display', serif; color: var(--color-gold-light);
+            font-size: 1.4rem; letter-spacing: 0.04em; margin-top: 1rem; }
+        .lightbox .lb-sku { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
+            color: rgba(245,240,235,0.55); margin-top: 0.3rem; }
+        .lightbox .lb-close { position: absolute; top: 2vh; right: 3vw; cursor: pointer;
+            color: var(--color-cream); font-size: 2.4rem; line-height: 1; background: none;
+            border: none; opacity: 0.8; }
+        .lightbox .lb-close:hover { opacity: 1; }
         .swatch-card {
             position: relative; cursor: pointer; background: var(--color-dark-wood-light);
             border: 1px solid rgba(181, 164, 122, 0.25); overflow: hidden;
@@ -533,6 +550,30 @@
     </footer>
 
     <script>
+    // ===== lightbox (click to zoom swatches) =====
+    (function(){
+        var lb=document.getElementById('lightbox'),
+            lbImg=document.getElementById('lb-img'),
+            lbName=document.getElementById('lb-name'),
+            lbSku=document.getElementById('lb-sku');
+        function open(card){
+            var img=card.querySelector('.swatch-image img');
+            var name=card.querySelector('.swatch-name');
+            var sku=card.querySelector('.swatch-sku');
+            lbImg.src=img?img.src:''; lbImg.alt=name?name.textContent:'';
+            lbName.textContent=name?name.textContent:'';
+            lbSku.textContent=sku?sku.textContent:'';
+            lb.classList.add('open'); document.body.style.overflow='hidden';
+        }
+        function close(){ lb.classList.remove('open'); document.body.style.overflow=''; }
+        document.querySelectorAll('.swatch-card.showcase').forEach(function(c){
+            c.addEventListener('click', function(){ open(c); });
+        });
+        document.getElementById('lb-close').addEventListener('click', close);
+        lb.addEventListener('click', function(e){ if(e.target===lb) close(); });
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+    })();
+
     // ============================================================
     // CONFIG — paste the Google Apps Script Web App URL here.
     // See "Sample Form - Setup for Jacobs Team.docx" for the
@@ -613,5 +654,13 @@
         document.getElementById('request-form').scrollIntoView({ behavior: 'smooth' });
     }
     </script>
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true">
+        <button class="lb-close" id="lb-close" aria-label="Close">&times;</button>
+        <div class="lightbox-inner">
+            <img id="lb-img" src="" alt="">
+            <div class="lb-name" id="lb-name"></div>
+            <div class="lb-sku" id="lb-sku"></div>
+        </div>
+    </div>
 </body>
 </html>
