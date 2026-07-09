@@ -691,22 +691,19 @@
         overlay.appendChild(counter);
         document.body.appendChild(overlay);
 
+        function updateArrows() {
+            leftArrow.style.display  = currentIndex <= 0 ? 'none' : 'block';
+            rightArrow.style.display = currentIndex >= products.length - 1 ? 'none' : 'block';
+        }
+
         function showProduct(index) {
-            if (index < 0) index = products.length - 1;
-            if (index >= products.length) index = 0;
+            if (index < 0 || index >= products.length) return; // no wrap-around
             currentIndex = index;
-            imgEl.style.opacity = '0';
-            caption.style.opacity = '0';
-            sku.style.opacity = '0';
-            setTimeout(() => {
-                imgEl.src = products[index].src;
-                caption.textContent = products[index].name;
-                sku.textContent = products[index].sku;
-                counter.textContent = `${index + 1} of ${products.length}`;
-                imgEl.style.opacity = '1';
-                caption.style.opacity = '1';
-                sku.style.opacity = '1';
-            }, 150);
+            imgEl.src = products[index].src;
+            caption.textContent = products[index].name;
+            sku.textContent = products[index].sku;
+            counter.textContent = (index + 1) + ' of ' + products.length;
+            updateArrows();
         }
 
         function openLightbox(index) {
@@ -714,10 +711,8 @@
             imgEl.src = products[index].src;
             caption.textContent = products[index].name;
             sku.textContent = products[index].sku;
-            counter.textContent = `${index + 1} of ${products.length}`;
-            imgEl.style.opacity = '1';
-            caption.style.opacity = '1';
-            sku.style.opacity = '1';
+            counter.textContent = (index + 1) + ' of ' + products.length;
+            updateArrows();
             overlay.style.display = 'flex';
             requestAnimationFrame(() => { overlay.style.opacity = '1'; });
             document.body.style.overflow = 'hidden';
